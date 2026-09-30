@@ -1,0 +1,103 @@
+@import "#app/shared/styles/page.css";
+
+.edit-top {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.edit-status {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.edit-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  height: auto;
+  padding-block: var(--space-2);
+}
+
+.edit-questions {
+  display: grid;
+  gap: var(--space-5);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.edit-question-head {
+  justify-content: space-between;
+}
+
+.edit-number {
+  font-weight: var(--weight-semibold);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* Long prompts wrap and grow instead of scrolling out of a one line input. */
+.edit-prompt {
+  field-sizing: content;
+  min-height: var(--input-height-lg);
+  padding-inline: var(--space-4);
+  font-size: var(--text-md);
+  resize: none;
+}
+
+.edit-answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.edit-answer {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--answer);
+  border-radius: var(--radius-md);
+}
+
+.edit-answer.is-correct {
+  border-color: var(--success);
+  border-left-color: var(--answer);
+  background: var(--success-soft);
+}
+
+.edit-answer .answer-shape {
+  color: var(--answer);
+}
+
+.edit-answer input {
+  border-color: transparent;
+  background: transparent;
+}
+
+.edit-mark {
+  min-width: 5.5rem;
+}
+
+.edit-time {
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.edit-time input {
+  width: 5rem;
+}
+
+.edit-foot {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 40rem) {
+  .edit-answers {
+    grid-template-columns: 1fr;
+  }
+}

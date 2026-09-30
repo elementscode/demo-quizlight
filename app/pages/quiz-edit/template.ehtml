@@ -1,0 +1,184 @@
+import "./style.css";
+import { redirect } from "@elements/app";
+import { Layout } from "#app/shared/templates/layout";
+import { AnswerShape } from "#app/shared/templates/answer-shape";
+import {
+  Quiz,
+  Question,
+  MIN_TIME,
+  MAX_TIME,
+  saveQuiz,
+  addQuestion,
+  saveQuestion,
+  deleteQuestion,
+  deleteQuiz,
+} from "#app/shared/services/quizzes";
+import { startGame } from "#app/shared/services/game";
+
+type AnswerKey = "answerA" | "answerB" | "answerC" | "answerD";
+
+const ANSWER_KEYS: AnswerKey[] = ["answerA", "answerB", "answerC", "answerD"];
+
+interface Status {
+  text: string;
+  error: string;
+}
+
+function saved(status: Status) {
+  status.text = "all changes saved";
+  status.error = "";
+}
+
+function failed(status: Status, err: any) {
+  status.text = "";
+  status.error = err.message;
+}
+
+function onQuizChange(status: Status, quiz: Quiz) {
+  try {
+    saveQuiz(quiz);
+    saved(status);
+  } catch (err: any) {
+    failed(status, err);
+  }
+}
+
+function onQuestionChange(status: Status, question: Question) {
+  try {
+    saveQuestion(question);
+    saved(status);
+  } catch (err: any) {
+    failed(status, err);
+  }
+}
+
+function onMarkCorrect(status: Status, question: Question, index: number) {
+  question.correct = index;
+  onQuestionChange(status, question);
+}
+
+function onAdd(status: Status, quiz: Quiz, questions: Question[]) {
+  try {
+    questions.push(addQuestion(quiz.id));
+    saved(status);
+  } catch (err: any) {
+    failed(status, err);
+  }
+}
+
+function onDelete(status: Status, questions: Question[], question: Question) {
+  let at = questions.indexOf(question);
+
+  if (at >= 0) {
+    questions.splice(at, 1);
+  }
+
+  try {
+    deleteQuestion(question.id);
+    saved(status);
+  } catch (err: any) {
+    failed(status, err);
+  }
+}
+
+function onDeleteQuiz(quiz: Quiz) {
+  if (confirm(`Delete "${quiz.title}" and all of its questions?`)) {
+    deleteQuiz(quiz.id);
+    redirect("/quizzes");
+  }
+}
+
+function onStart(status: Status, quiz: Quiz) {
+  try {
+    redirect(`/host/${startGame(quiz.id)}`);
+  } catch (err: any) {
+    failed(status, err);
+  }
+}
+
+<html lang="en" class="page-quiz-edit" (
+  quiz: Quiz,
+  questions: Question[],
+  private status: Status = { text: "", error: "" },
+)>
+  <Layout title={quiz.title}>
+    <div slot="nav" class="cluster is-sm">
+      <a href="/quizzes" class="button is-ghost is-sm">my quizzes</a>
+    </div>
+
+    <div class="stack is-xl">
+      <div class="edit-top row">
+        <a href="/quizzes" class="link-muted">← all quizzes</a>
+        <div class="cluster is-sm">
+          <span class="edit-status" aria-live="polite">{status.text}</span>
+          <button class="is-primary" disabled={questions.length === 0} onclick={() => onStart(status, quiz)}>start game</button>
+        </div>
+      </div>
+
+      <p e:if={status.error} class="error" role="alert">{status.error}</p>
+
+      <div class="stack is-sm">
+        <label class="sr-only" for="quiz-title">quiz title</label>
+        <input id="quiz-title"
+               class="edit-title"
+               value={quiz.title}
+               placeholder="Quiz title"
+               onchange={() => onQuizChange(status, quiz)}>
+        <label class="sr-only" for="quiz-blurb">description</label>
+        <input id="quiz-blurb"
+               value={quiz.blurb}
+               placeholder="A line about this quiz (optional)"
+               onchange={() => onQuizChange(status, quiz)}>
+      </div>
+
+      <ol class="edit-questions">
+        <li e:for={[n, question] of questions.entries()} e:key={([n, question]) => question.id} class="card">
+          <div class="card-body stack">
+            <div class="edit-question-head row">
+              <span class="edit-number">Question {n + 1}</span>
+              <div class="cluster is-sm">
+                <label class="edit-time row">
+                  <input type="number"
+                         class="is-sm"
+                         min={MIN_TIME}
+                         max={MAX_TIME}
+                         step={5}
+                         value={question.timeLimit}
+                         onchange={() => onQuestionChange(status, question)}>
+                  seconds
+                </label>
+                <button class="is-ghost is-sm" onclick={() => onDelete(status, questions, question)}>delete</button>
+              </div>
+            </div>
+
+            <textarea value={question.prompt}
+                      class="edit-prompt"
+                      rows={1}
+                      placeholder="Ask a question"
+                      aria-label={`question ${n + 1}`}
+                      onchange={() => onQuestionChange(status, question)}/>
+
+            <div class="edit-answers">
+              <div e:for={[i, key] of ANSWER_KEYS.entries()}
+                   e:key={([i]) => i}
+                   class={["edit-answer", `is-answer-${i}`, question.correct === i && "is-correct"]}>
+                <AnswerShape index={i} size={18} />
+                <input value={question[key]}
+                       placeholder={`Answer ${i + 1}`}
+                       aria-label={`answer ${i + 1}`}
+                       onchange={() => onQuestionChange(status, question)}>
+                <button e:if={question.correct === i} class="edit-mark is-sm is-primary" aria-pressed="true">✓ correct</button>
+                <button e:else class="edit-mark is-sm is-ghost" onclick={() => onMarkCorrect(status, question, i)}>mark correct</button>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="edit-foot row">
+        <button onclick={() => onAdd(status, quiz, questions)}>+ add question</button>
+        <button class="is-danger is-sm" onclick={() => onDeleteQuiz(quiz)}>delete quiz</button>
+      </div>
+    </div>
+  </Layout>
+</html>

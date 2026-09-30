@@ -1,0 +1,95 @@
+import "./style.css";
+import { session, redirect, ValidationError, FieldErrors } from "@elements/app";
+import { Layout } from "#app/shared/templates/layout";
+import { joinGame, JoinForm, MAX_NICKNAME } from "#app/shared/services/game";
+
+interface JoinState {
+  form: JoinForm;
+  errors: FieldErrors<JoinForm>;
+  error: string;
+  joining: boolean;
+}
+
+function onSubmit(state: JoinState) {
+  state.joining = true;
+
+  try {
+    let token = joinGame(state.form);
+    state.errors = {};
+    state.error = "";
+    redirect(`/play/${token}`);
+  } catch (err: any) {
+    state.joining = false;
+
+    if (err instanceof ValidationError && err.errors) {
+      state.errors = err.errors;
+      state.error = "";
+    } else {
+      state.errors = {};
+      state.error = err.message;
+    }
+  }
+}
+
+<html lang="en" class="page-home" (
+  code: string = "",
+  private state: JoinState = { form: { code, nickname: "" }, errors: {}, error: "", joining: false },
+)>
+  <Layout title="Join a game">
+    <div slot="nav" class="cluster is-sm">
+      <a e:if={session.isLoggedIn()} href="/quizzes" class="button is-ghost is-sm">my quizzes</a>
+      <a e:else href="/signin" class="button is-ghost is-sm">host sign in</a>
+    </div>
+
+    <div class="stack is-2xl">
+      <div class="home-hero stack is-sm">
+        <p class="eyebrow">game night</p>
+        <h1 class="display">Join the quiz</h1>
+        <p class="lede">Type the code from the big screen and pick a name.</p>
+      </div>
+
+      <form class="home-join card stack" onsubmit={() => onSubmit(state)}>
+        <div class="card-body stack">
+          <p e:if={state.error} class="error" role="alert">{state.error}</p>
+
+          <div class="field">
+            <label for="code">game code</label>
+            <input id="code"
+                   name="code"
+                   class={["home-code", "is-lg", state.errors.code && "is-error"]}
+                   value={state.form.code}
+                   inputmode="numeric"
+                   autocomplete="off"
+                   maxlength={7}
+                   placeholder="000000"
+                   required>
+            <p e:if={state.errors.code} class="error">{state.errors.code?.[0]}</p>
+          </div>
+
+          <div class="field">
+            <label for="nickname">nickname</label>
+            <input id="nickname"
+                   name="nickname"
+                   class={["is-lg", state.errors.nickname && "is-error"]}
+                   value={state.form.nickname}
+                   autocomplete="nickname"
+                   autocapitalize="words"
+                   maxlength={MAX_NICKNAME}
+                   placeholder="Quizzy McQuizface"
+                   required>
+            <p e:if={state.errors.nickname} class="error">{state.errors.nickname?.[0]}</p>
+          </div>
+
+          <button type="submit" class={["is-primary", "is-lg", "is-block", state.joining && "is-loading"]}>
+            join game
+          </button>
+        </div>
+      </form>
+
+      <p class="home-host cluster is-sm">
+        Hosting tonight?
+        <a class="link-action" href="/quizzes">Run a quiz on the big screen</a>
+      </p>
+    </div>
+  </Layout>
+</html>

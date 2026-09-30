@@ -1,0 +1,21 @@
+.layout-header {
+  border-bottom: 1px solid var(--rule);
+}
+
+.layout-header-inner {
+  justify-content: space-between;
+  padding-block: var(--space-4);
+}
+
+.layout-brand {
+  gap: var(--space-2);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.layout-main {
+  padding-block: var(--space-10) var(--space-16);
+}

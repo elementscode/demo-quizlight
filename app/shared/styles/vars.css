@@ -1,0 +1,48 @@
+@layer tokens {
+  :root {
+    --brand-50: oklch(0.985 0.007 292);
+    --brand-100: oklch(0.96 0.019 292);
+    --brand-200: oklch(0.92 0.039 292);
+    --brand-300: oklch(0.86 0.070 292);
+    --brand-400: oklch(0.74 0.136 292);
+    --brand-500: oklch(0.62 0.147 292);
+    --brand-600: oklch(0.52 0.123 292);
+    --brand-700: oklch(0.42 0.100 292);
+    --brand-800: oklch(0.32 0.076 292);
+    --brand-900: oklch(0.22 0.052 292);
+    --brand-950: oklch(0.14 0.033 292);
+    --accent: var(--brand-600);
+    --accent-deep: var(--brand-700);
+    --accent-soft: var(--brand-50);
+    --accent-ink: #ffffff;
+    --accent-edge: var(--brand-200);
+    --link-c: 0.123;
+    --link-h: 292;
+
+    /* The four answer colors stay saturated in both themes: players find
+       their answer by color and shape across a room, not by reading. */
+    --answer-0: oklch(0.58 0.21 25);
+    --answer-1: oklch(0.55 0.19 258);
+    --answer-2: oklch(0.72 0.16 72);
+    --answer-3: oklch(0.58 0.16 152);
+    --answer-ink: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --accent: var(--brand-400);
+      --accent-deep: var(--brand-300);
+      --accent-soft: var(--brand-900);
+      --accent-ink: var(--brand-950);
+      --accent-edge: var(--brand-700);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --accent: var(--brand-400);
+    --accent-deep: var(--brand-300);
+    --accent-soft: var(--brand-900);
+    --accent-ink: var(--brand-950);
+    --accent-edge: var(--brand-700);
+  }
+}

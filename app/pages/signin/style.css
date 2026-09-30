@@ -1,0 +1,29 @@
+@import "#app/shared/styles/page.css";
+
+.signin-card {
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.signin-demo {
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.signin-demo dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+
+.signin-demo dt {
+  color: var(--ink-soft);
+}
+
+.signin-demo dd {
+  margin: 0;
+  font-family: var(--font-mono);
+}
