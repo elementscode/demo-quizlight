@@ -1,4 +1,4 @@
-![Quizlight, a live trivia game built with Elements: the big screen mid-question, with a countdown ring at 14 seconds, four colored answers and 5 of 9 players answered.](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c/poster?v=87cecb996c64)
+![Quizlight, a live trivia game built with Elements: the big screen after a question, with the correct answer highlighted, a count of players on each answer and 5 of 8 who got it right.](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c/poster?v=b086df8552bb)
 
 # Quizlight
 
