@@ -1,0 +1,26 @@
+import "./style.css";
+import { Logo } from "#app/shared/templates/logo";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+
+<Layout (title: string, width: string = "is-form")>
+  <head>
+    <title>{title} · quizlight</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <header class="layout-header">
+        <div class={["page-shell", width, "layout-header-inner", "row"]}>
+          <a href="/" class="layout-brand row"><Logo /> quizlight</a>
+          <nav class="cluster is-sm">
+            <slot name="nav"/>
+          </nav>
+        </div>
+      </header>
+      <main class={["page-shell", width, "layout-main"]}>
+        <slot/>
+      </main>
+    </div>
+  </body>
+</Layout>

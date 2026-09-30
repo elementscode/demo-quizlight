@@ -1,0 +1,33 @@
+@import "#app/shared/styles/page.css";
+
+.home-hero {
+  text-align: center;
+}
+
+.home-hero .display {
+  font-size: clamp(var(--text-4xl), 8vw, var(--text-6xl));
+}
+
+.home-join {
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.home-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  letter-spacing: 0.3em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-code::placeholder {
+  letter-spacing: 0.3em;
+}
+
+.home-host {
+  justify-content: center;
+  text-align: center;
+  color: var(--ink-soft);
+}

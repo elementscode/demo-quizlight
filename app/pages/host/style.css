@@ -1,0 +1,367 @@
+@import "#app/shared/styles/page.css";
+
+.page-host body {
+  background:
+    radial-gradient(80rem 40rem at 15% -10%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 70%),
+    radial-gradient(60rem 40rem at 110% 110%, color-mix(in oklab, var(--answer-1) 25%, transparent), transparent 70%),
+    var(--bg);
+}
+
+.stage {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+  padding: clamp(var(--space-4), 2.5vw, var(--space-10));
+  gap: clamp(var(--space-4), 2vw, var(--space-8));
+}
+
+.stage-top,
+.stage-controls {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.stage-brand {
+  gap: var(--space-3);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.stage-brand span {
+  color: var(--ink-soft);
+  font-weight: var(--weight-medium);
+}
+
+.stage-pill {
+  font-size: var(--text-lg);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.stage-pill strong {
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+}
+
+.stage-main {
+  display: grid;
+  align-content: center;
+  min-height: 0;
+}
+
+.stage-enter {
+  animation: stage-enter 420ms var(--ease-out, ease-out) both;
+}
+
+@keyframes stage-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem) scale(0.98);
+  }
+}
+
+/* lobby */
+
+.lobby {
+  display: grid;
+  gap: clamp(var(--space-6), 4vw, var(--space-12));
+  justify-items: center;
+  text-align: center;
+}
+
+.lobby-join {
+  font-size: clamp(var(--text-xl), 2.4vw, var(--text-3xl));
+  color: var(--ink-soft);
+}
+
+.lobby-join strong {
+  color: var(--ink);
+}
+
+.lobby-code {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(4rem, 14vw, 13rem);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby-count {
+  font-size: clamp(var(--text-lg), 1.8vw, var(--text-2xl));
+  color: var(--ink-soft);
+}
+
+.lobby-players {
+  justify-content: center;
+  max-width: 70rem;
+}
+
+.lobby-player {
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  font-size: clamp(var(--text-md), 1.6vw, var(--text-2xl));
+  font-weight: var(--weight-semibold);
+  animation: lobby-pop 360ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes lobby-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+/* question and reveal */
+
+.round {
+  display: grid;
+  gap: clamp(var(--space-5), 3vw, var(--space-10));
+}
+
+.round-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.round-prompt {
+  margin: 0;
+  font-size: clamp(var(--text-3xl), 4.4vw, 5rem);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.round-timer {
+  display: grid;
+  place-items: center;
+  width: clamp(6rem, 10vw, 10rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) calc(var(--left) * 1turn), color-mix(in oklab, var(--ink) 10%, transparent) 0);
+  font-size: clamp(var(--text-3xl), 4vw, 4.5rem);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.round-timer span {
+  display: grid;
+  place-items: center;
+  width: 82%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.round-timer.is-urgent {
+  --accent: var(--answer-0);
+}
+
+.round-status {
+  justify-content: space-between;
+  font-size: clamp(var(--text-lg), 1.6vw, var(--text-2xl));
+  color: var(--ink-soft);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(var(--space-3), 1.5vw, var(--space-5));
+}
+
+.tile {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(var(--space-3), 1.5vw, var(--space-6));
+  min-height: clamp(5rem, 11vh, 9rem);
+  padding: var(--space-4) clamp(var(--space-5), 2vw, var(--space-8));
+  overflow: hidden;
+  border-radius: var(--radius-xl, 1rem);
+  background: var(--answer);
+  color: var(--answer-ink);
+  font-size: clamp(var(--text-xl), 2.6vw, 3rem);
+  font-weight: var(--weight-semibold);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.tile .answer-shape {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.tile-count {
+  position: relative;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+}
+
+.tile-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--share) * 100%);
+  background: rgb(255 255 255 / 0.18);
+  transition: width 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tile > :not(.tile-bar) {
+  position: relative;
+}
+
+.tiles.is-revealed .tile:not(.is-correct) {
+  opacity: 0.35;
+  transform: scale(0.97);
+}
+
+.tiles.is-revealed .tile.is-correct {
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--answer);
+}
+
+/* leaderboard */
+
+.board {
+  display: grid;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 60rem;
+  margin-inline: auto;
+}
+
+.board h1 {
+  margin: 0;
+  font-size: clamp(var(--text-4xl), 5vw, 5rem);
+  text-align: center;
+}
+
+.board-list {
+  display: grid;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: 3ch 1fr auto auto;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  font-size: clamp(var(--text-xl), 2.2vw, var(--text-3xl));
+  font-variant-numeric: tabular-nums;
+  animation: stage-enter 420ms ease-out both;
+}
+
+.board-row:nth-child(2) { animation-delay: 60ms; }
+.board-row:nth-child(3) { animation-delay: 120ms; }
+.board-row:nth-child(4) { animation-delay: 180ms; }
+.board-row:nth-child(5) { animation-delay: 240ms; }
+
+.board-rank {
+  color: var(--ink-soft);
+  font-weight: var(--weight-bold);
+}
+
+.board-name {
+  font-weight: var(--weight-semibold);
+}
+
+.board-gained {
+  color: var(--success);
+  font-size: 0.75em;
+}
+
+.board-score {
+  font-weight: var(--weight-bold);
+}
+
+/* finished */
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 14rem));
+  justify-content: center;
+  align-items: end;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.podium-step {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+  text-align: center;
+  animation: podium-rise 700ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+
+/* The steps sit 2nd, 1st, 3rd, and rise from third place up. */
+.podium-step:nth-child(1) { animation-delay: 250ms; }
+.podium-step:nth-child(2) { animation-delay: 500ms; }
+
+@keyframes podium-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4rem);
+  }
+}
+
+.podium-name {
+  font-size: clamp(var(--text-xl), 2.4vw, var(--text-3xl));
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.podium-score {
+  color: var(--ink-soft);
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+}
+
+.podium-block {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--answer);
+  color: var(--answer-ink);
+  font-size: clamp(var(--text-3xl), 4vw, 4rem);
+  font-weight: var(--weight-bold);
+}
+
+.podium-step.is-first .podium-block { height: 16rem; }
+.podium-step.is-second .podium-block { height: 11rem; }
+.podium-step.is-third .podium-block { height: 8rem; }
+
+.stage-controls .button,
+.stage-controls button {
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 48rem) {
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .round-head {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-enter,
+  .lobby-player,
+  .board-row,
+  .podium-step {
+    animation: none;
+  }
+}

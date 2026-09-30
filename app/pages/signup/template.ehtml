@@ -1,0 +1,69 @@
+import "./style.css";
+import { redirect } from "@elements/app";
+import { Layout } from "#app/shared/templates/layout";
+import { signup, MIN_PASSWORD } from "#app/shared/services/auth";
+
+interface SignupForm {
+  name: string;
+  email: string;
+  password: string;
+  error: string;
+}
+
+function onSubmit(form: SignupForm) {
+  try {
+    signup(form.name, form.email, form.password);
+    form.error = "";
+    redirect("/quizzes");
+  } catch (err: any) {
+    form.error = err.message;
+  }
+}
+
+<html lang="en" class="page-signup" (
+  private form: SignupForm = { name: "", email: "", password: "", error: "" },
+)>
+  <Layout title="Create a host account">
+    <form class="signup-card card" onsubmit={() => onSubmit(form)}>
+      <div class="card-body stack">
+        <h1>Become a host</h1>
+
+        <p e:if={form.error} class="error" role="alert">{form.error}</p>
+
+        <div class="field">
+          <label for="name">name</label>
+          <input id="name" name="name" value={form.name} autocomplete="name" required>
+        </div>
+
+        <div class="field">
+          <label for="email">email</label>
+          <input id="email"
+                 name="email"
+                 type="email"
+                 value={form.email}
+                 autocomplete="email"
+                 autocapitalize="none"
+                 spellcheck={false}
+                 placeholder="you@example.com"
+                 required>
+        </div>
+
+        <div class="field">
+          <label for="password">password</label>
+          <input id="password"
+                 name="password"
+                 type="password"
+                 value={form.password}
+                 autocomplete="new-password"
+                 minlength={MIN_PASSWORD}
+                 required>
+          <p class="hint">at least {MIN_PASSWORD} characters</p>
+        </div>
+
+        <button type="submit" class="is-primary is-block">create account</button>
+
+        <p class="hint">Already hosting? <a href="/signin">Sign in</a></p>
+      </div>
+    </form>
+  </Layout>
+</html>

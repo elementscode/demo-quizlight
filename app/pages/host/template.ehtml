@@ -1,0 +1,194 @@
+import "./style.css";
+import type { Listener } from "@elements/app";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { Logo } from "#app/shared/templates/logo";
+import { AnswerShape } from "#app/shared/templates/answer-shape";
+import { GameState, HostAction, Standing, advance, timeUp, ordinal } from "#app/shared/services/game";
+import { Clock, Live, newClock, syncClock, applyState, secondsLeft, fractionLeft, msLeft } from "#app/shared/services/clock";
+
+interface Control {
+  busy: boolean;
+  error: string;
+  fired: string;
+}
+
+function onInit(listener: Listener<GameState>, live: Live, clock: Clock, control: Control) {
+  syncClock(clock, live.state);
+  listener.on("notify", (state) => applyState(live, clock, state));
+  clock.timer = setInterval(() => onTick(live, clock, control), 100);
+}
+
+/** The big screen owns the timer: when it runs out, it asks the server to close the question. */
+function onTick(live: Live, clock: Clock, control: Control) {
+  clock.now = Date.now();
+
+  let state = live.state;
+
+  if (state.phase === "question" && msLeft(clock) === 0 && control.fired !== clock.key) {
+    control.fired = clock.key;
+    timeUp(state.gameId, state.questionIndex);
+  }
+}
+
+function onAdvance(live: Live, control: Control, action: HostAction) {
+  control.busy = true;
+
+  try {
+    advance(live.state.gameId, action, live.state.questionIndex);
+    control.error = "";
+  } catch (err: any) {
+    control.error = err.message;
+  }
+
+  control.busy = false;
+}
+
+function share(state: GameState, index: number): number {
+  let total = state.tally ? state.tally.reduce((a, b) => a + b, 0) : 0;
+
+  return total > 0 && state.tally ? state.tally[index] / total : 0;
+}
+
+function isLast(state: GameState): boolean {
+  return state.questionIndex >= state.questionCount - 1;
+}
+
+function podium(players: Standing[]): { player: Standing; place: number }[] {
+  let order = [1, 0, 2];
+
+  return order.filter((i) => players[i]).map((i) => ({ player: players[i], place: i + 1 }));
+}
+
+<html lang="en" class="page-host" data-theme="dark" (
+  listener: Listener<GameState>,
+  state: GameState,
+  joinHost: string,
+  private live: Live = { state },
+  private clock: Clock = newClock(),
+  private control: Control = { busy: false, error: "", fired: "" },
+) oninit={() => onInit(listener, live, clock, control)} onremove={() => clearInterval(clock.timer)}>
+  <head>
+    <title>{live.state.quizTitle} · quizlight</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="stage">
+      <header class="stage-top row">
+        <div class="stage-brand row"><Logo size={32} /> quizlight <span>{live.state.quizTitle}</span></div>
+        <div class="cluster is-sm">
+          <span e:if={live.state.phase === "question" || live.state.phase === "reveal"} class="stage-pill">
+            question {live.state.questionIndex + 1} of {live.state.questionCount}
+          </span>
+          <span e:if={live.state.phase !== "lobby" && live.state.phase !== "finished"} class="stage-pill">
+            join at {joinHost} with <strong>{live.state.code}</strong>
+          </span>
+        </div>
+      </header>
+
+      <main class="stage-main">
+        <section e:if={live.state.phase === "lobby"} class="lobby stage-enter">
+          <p class="lobby-join">Join at <strong>{joinHost}</strong> with the code</p>
+          <p class="lobby-code" aria-label={`game code ${live.state.code.split("").join(" ")}`}>{live.state.code}</p>
+          <p class="lobby-count" aria-live="polite">
+            {live.state.players.length === 0 ? "Waiting for players…" : `${live.state.players.length} ${live.state.players.length === 1 ? "player" : "players"} in`}
+          </p>
+          <div class="lobby-players cluster">
+            <span e:for={player of live.state.players} e:key={(p) => p.nickname} class="lobby-player">{player.nickname}</span>
+          </div>
+        </section>
+
+        <section e:elseif={(live.state.phase === "question" || live.state.phase === "reveal") && live.state.question} class="round">
+          <div class="round-head">
+            <h1 class="round-prompt">{live.state.question!.prompt}</h1>
+            <div e:if={live.state.phase === "question"}
+                 class={["round-timer", secondsLeft(clock) <= 5 && "is-urgent"]}
+                 style={`--left: ${fractionLeft(clock, live.state)}`}
+                 role="timer"
+                 aria-label={`${secondsLeft(clock)} seconds left`}>
+              <span>{secondsLeft(clock)}</span>
+            </div>
+          </div>
+
+          <div class={["tiles", live.state.phase === "reveal" && "is-revealed"]}>
+            <div e:for={[i, text] of live.state.question!.answers.entries()}
+                 e:key={([i]) => i}
+                 class={["tile", `is-answer-${i}`, live.state.correct === i && "is-correct"]}>
+              <span e:if={live.state.tally} class="tile-bar" style={`--share: ${share(live.state, i)}`}></span>
+              <AnswerShape index={i} size={40} />
+              <span>{text}</span>
+              <span e:if={live.state.tally} class="tile-count">{live.state.tally![i]}</span>
+            </div>
+          </div>
+
+          <div class="round-status row">
+            <span e:if={live.state.phase === "question"} aria-live="polite">
+              {live.state.answeredCount} of {live.state.players.length} answered
+            </span>
+            <span e:else>
+              {live.state.players.filter((p) => p.correct).length} of {live.state.players.length} got it right
+            </span>
+          </div>
+        </section>
+
+        <section e:elseif={live.state.phase === "leaderboard"} class="board stage-enter">
+          <h1>Leaderboard</h1>
+          <ol class="board-list">
+            <li e:for={[n, player] of live.state.players.slice(0, 5).entries()} e:key={([n, p]) => p.nickname} class="board-row">
+              <span class="board-rank">{n + 1}</span>
+              <span class="board-name">{player.nickname}</span>
+              <span class="board-gained">{player.gained > 0 ? `+${player.gained}` : ""}</span>
+              <span class="board-score">{player.score.toLocaleString()}</span>
+            </li>
+          </ol>
+        </section>
+
+        <section e:elseif={live.state.phase === "finished"} class="board stage-enter">
+          <h1>Final results</h1>
+          <p e:if={live.state.players.length === 0} class="lobby-count" style="text-align: center">Nobody joined this one.</p>
+          <div class="podium">
+            <div e:for={step of podium(live.state.players)}
+                 e:key={(s) => s.player.nickname}
+                 class={["podium-step", step.place === 1 && "is-first", step.place === 2 && "is-second", step.place === 3 && "is-third", `is-answer-${[2, 1, 0][step.place - 1]}`]}>
+              <span class="podium-name">{step.player.nickname}</span>
+              <span class="podium-score">{step.player.score.toLocaleString()} pts</span>
+              <div class="podium-block">{ordinal(step.place)}</div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="stage-controls row">
+        <span>
+          <span e:if={control.error} class="error" role="alert">{control.error}</span>
+        </span>
+        <div class="cluster is-sm">
+          <a e:if={live.state.phase === "lobby" || live.state.phase === "finished"} class="button is-ghost" href="/quizzes">
+            {live.state.phase === "finished" ? "back to quizzes" : "cancel"}
+          </a>
+          <button e:if={live.state.phase === "lobby"}
+                  class="is-primary is-lg"
+                  disabled={live.state.players.length === 0 || control.busy}
+                  onclick={() => onAdvance(live, control, "start")}>
+            start game
+          </button>
+          <button e:if={live.state.phase === "question"} class="is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "close")}>
+            reveal answer now
+          </button>
+          <button e:if={live.state.phase === "reveal"} class="is-primary is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "leaderboard")}>
+            leaderboard
+          </button>
+          <button e:if={live.state.phase === "leaderboard" && !isLast(live.state)} class="is-primary is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "next")}>
+            next question
+          </button>
+          <button e:if={live.state.phase === "leaderboard" && isLast(live.state)} class="is-primary is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "next")}>
+            final results
+          </button>
+          <button e:if={live.state.phase !== "lobby" && live.state.phase !== "finished"} class="is-ghost" disabled={control.busy} onclick={() => onAdvance(live, control, "end")}>
+            end game
+          </button>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

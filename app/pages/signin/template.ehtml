@@ -1,0 +1,85 @@
+import "./style.css";
+import { redirect } from "@elements/app";
+import { Layout } from "#app/shared/templates/layout";
+import { signin, DEMO_HOST } from "#app/shared/services/auth";
+
+interface SigninForm {
+  email: string;
+  password: string;
+  error: string;
+}
+
+function onSubmit(form: SigninForm) {
+  try {
+    signin(form.email, form.password);
+    form.error = "";
+    redirect("/quizzes");
+  } catch (err: any) {
+    form.error = err.message;
+  }
+}
+
+function onUseDemo(form: SigninForm) {
+  form.email = DEMO_HOST.email;
+  form.password = DEMO_HOST.password;
+  onSubmit(form);
+}
+
+<html lang="en" class="page-signin" (
+  private form: SigninForm = { email: "", password: "", error: "" },
+)>
+  <Layout title="Host sign in">
+    <div class="stack is-xl">
+      <form class="signin-card card" onsubmit={() => onSubmit(form)}>
+        <div class="card-body stack">
+          <h1>Host sign in</h1>
+
+          <p e:if={form.error} class="error" role="alert">{form.error}</p>
+
+          <div class="field">
+            <label for="email">email</label>
+            <input id="email"
+                   name="email"
+                   type="email"
+                   value={form.email}
+                   autocomplete="email"
+                   autocapitalize="none"
+                   spellcheck={false}
+                   placeholder="you@example.com"
+                   required>
+          </div>
+
+          <div class="field">
+            <label for="password">password</label>
+            <input id="password"
+                   name="password"
+                   type="password"
+                   value={form.password}
+                   autocomplete="current-password"
+                   required>
+          </div>
+
+          <button type="submit" class="is-primary is-block">sign in</button>
+
+          <p class="hint">New host? <a href="/signup">Create an account</a></p>
+        </div>
+      </form>
+
+      <aside class="signin-demo callout is-accent">
+        <div class="stack is-sm">
+          <p class="callout-title">Demo host</p>
+          <p>Three quizzes are ready to play: geography, movies and science.</p>
+          <dl>
+            <dt>email</dt>
+            <dd>{DEMO_HOST.email}</dd>
+            <dt>password</dt>
+            <dd>{DEMO_HOST.password}</dd>
+          </dl>
+          <div>
+            <button type="button" class="is-sm" onclick={() => onUseDemo(form)}>sign in as the demo host</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </Layout>
+</html>

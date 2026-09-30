@@ -1,0 +1,11 @@
+@import "@elements/style";
+@import "./vars.css";
+
+.answer-shape {
+  flex: none;
+}
+
+.is-answer-0 { --answer: var(--answer-0); }
+.is-answer-1 { --answer: var(--answer-1); }
+.is-answer-2 { --answer: var(--answer-2); }
+.is-answer-3 { --answer: var(--answer-3); }

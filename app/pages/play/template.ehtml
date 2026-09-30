@@ -1,0 +1,146 @@
+import "./style.css";
+import type { Listener } from "@elements/app";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { AnswerShape } from "#app/shared/templates/answer-shape";
+import { GameState, Standing, answer, rankOf, ordinal } from "#app/shared/services/game";
+import { Clock, Live, newClock, syncClock, applyState, secondsLeft, fractionLeft } from "#app/shared/services/clock";
+
+/** The answer this phone sent, so it can show it back without waiting on the server. */
+interface Mine {
+  index: number;
+  choice: number;
+  error: string;
+}
+
+function onInit(listener: Listener<GameState>, live: Live, clock: Clock) {
+  syncClock(clock, live.state);
+  listener.on("notify", (state) => applyState(live, clock, state));
+  clock.timer = setInterval(() => clock.now = Date.now(), 100);
+}
+
+function onAnswer(token: string, live: Live, mine: Mine, choice: number) {
+  let index = live.state.questionIndex;
+
+  if (mine.index === index) {
+    return;
+  }
+
+  mine.index = index;
+  mine.choice = choice;
+  mine.error = "";
+
+  try {
+    answer(token, index, choice);
+  } catch (err: any) {
+    mine.error = err.message;
+  }
+}
+
+function me(state: GameState, nickname: string): Standing | undefined {
+  return state.players.find((p) => p.nickname === nickname);
+}
+
+function answered(state: GameState, mine: Mine, nickname: string): boolean {
+  return mine.index === state.questionIndex || me(state, nickname)?.answered === true;
+}
+
+function standingLine(state: GameState, nickname: string): string {
+  let rank = rankOf(state.players, nickname);
+
+  return rank > 0 ? `${ordinal(rank)} of ${state.players.length}` : "";
+}
+
+<html lang="en" class="page-play" (
+  listener: Listener<GameState>,
+  state: GameState,
+  token: string,
+  nickname: string,
+  private live: Live = { state },
+  private clock: Clock = newClock(),
+  private mine: Mine = { index: -1, choice: -1, error: "" },
+) oninit={() => onInit(listener, live, clock)} onremove={() => clearInterval(clock.timer)}>
+  <head>
+    <title>{nickname} · quizlight</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#6d5bb0">
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="phone">
+      <div>
+        <header class="phone-top row">
+          <span>{nickname}</span>
+          <span class="phone-score">{(me(live.state, nickname)?.score ?? 0).toLocaleString()} pts</span>
+        </header>
+        <div e:if={live.state.phase === "question"} class={["phone-bar", secondsLeft(clock) <= 5 && "is-urgent"]} style={`--left: ${fractionLeft(clock, live.state)}`}>
+          <span></span>
+        </div>
+      </div>
+
+      <main e:if={live.state.phase === "lobby"} class="phone-body">
+        <p class="phone-big">You're in!</p>
+        <p class="phone-name">{nickname}</p>
+        <p class="phone-meta">Watch the big screen. The game starts when the host is ready.</p>
+        <p class="phone-meta">{live.state.players.length} {live.state.players.length === 1 ? "player" : "players"} in the room</p>
+      </main>
+
+      <main e:elseif={live.state.phase === "question" && !answered(live.state, mine, nickname) && live.state.question} class="phone-question">
+        <div class="stack is-xs">
+          <p class="phone-meta">question {live.state.questionIndex + 1} of {live.state.questionCount} · {secondsLeft(clock)}s</p>
+          <h1 class="phone-prompt">{live.state.question!.prompt}</h1>
+        </div>
+        <div class="choices">
+          <button e:for={[i, text] of live.state.question!.answers.entries()}
+                  e:key={([i]) => i}
+                  class={["choice", `is-answer-${i}`]}
+                  disabled={secondsLeft(clock) === 0}
+                  onclick={() => onAnswer(token, live, mine, i)}>
+            <AnswerShape index={i} size={36} />
+            <span>{text}</span>
+          </button>
+        </div>
+      </main>
+
+      <main e:elseif={live.state.phase === "question"} class="phone-body">
+        <div e:if={mine.choice >= 0 && mine.index === live.state.questionIndex} class={["locked", `is-answer-${mine.choice}`]}>
+          <AnswerShape index={mine.choice} size={56} />
+        </div>
+        <h1>Locked in</h1>
+        <p class="phone-meta">{live.state.answeredCount} of {live.state.players.length} answered. Eyes on the big screen.</p>
+        <p e:if={mine.error} class="error" role="alert">{mine.error}</p>
+      </main>
+
+      <main e:elseif={live.state.phase === "reveal" || live.state.phase === "leaderboard"} class="phone-body">
+        <div e:if={me(live.state, nickname)?.correct} class="verdict is-right" aria-hidden="true">✓</div>
+        <div e:elseif={me(live.state, nickname)?.answered} class="verdict is-wrong" aria-hidden="true">✗</div>
+        <div e:else class="verdict is-late" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5M19 6l1.5-1.5"/></svg>
+        </div>
+
+        <h1 e:if={me(live.state, nickname)?.correct}>Correct!</h1>
+        <h1 e:elseif={me(live.state, nickname)?.answered}>Not this time</h1>
+        <h1 e:else>Time's up</h1>
+
+        <p class="phone-points">+{(me(live.state, nickname)?.gained ?? 0).toLocaleString()} points</p>
+
+        <div class="phone-rank">
+          <span class="phone-meta">you're</span>
+          <strong>{standingLine(live.state, nickname)}</strong>
+          <span class="phone-meta">{(me(live.state, nickname)?.score ?? 0).toLocaleString()} points</span>
+        </div>
+      </main>
+
+      <main e:else class="phone-body">
+        <p class="phone-meta">final results</p>
+        <p class="phone-big">{ordinal(rankOf(live.state.players, nickname))}</p>
+        <h1 e:if={rankOf(live.state.players, nickname) === 1}>You won!</h1>
+        <h1 e:elseif={rankOf(live.state.players, nickname) <= 3}>On the podium!</h1>
+        <h1 e:else>Thanks for playing</h1>
+        <p class="phone-meta">{(me(live.state, nickname)?.score ?? 0).toLocaleString()} points · {live.state.players.length} players</p>
+        <div>
+          <a class="button is-primary is-lg" href="/">join another game</a>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
