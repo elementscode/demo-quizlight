@@ -6,7 +6,7 @@
 
 Hosts build quizzes and run them on a big screen. Players join from their phones with a code, race the countdown, and see their points and rank after every question.
 
-**Demo:** [Quizlight](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c/poster?v=87cecb996c64)
+**Demo:** [Quizlight](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c)
 
 ## Agent specs
 
