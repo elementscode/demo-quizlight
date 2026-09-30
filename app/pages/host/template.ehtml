@@ -59,7 +59,7 @@ function podium(players: Standing[]): { player: Standing; place: number }[] {
   return order.filter((i) => players[i]).map((i) => ({ player: players[i], place: i + 1 }));
 }
 
-<html lang="en" class="page-host" data-theme="dark" (
+<html lang="en" class="page-host" (
   listener: Listener<GameState>,
   state: GameState,
   joinHost: string,
