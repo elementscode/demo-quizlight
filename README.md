@@ -34,10 +34,15 @@ Quizlight needed a big screen and a room full of phones that move through each q
 ### What Elements gave the app
 
 - **One game state for every screen.** A channel carries a snapshot of the game, and every join, answer and host action sends a fresh one, so the big screen and each phone redraw together. The answer and new scores join it when the question closes.
+
 - **Players join from their phones.** A player types the six-digit code from the big screen and a nickname and gets their own game page. Nicknames are unique and a game holds up to 50 players.
+
 - **Scoring timed on the server.** Each answer is timed in SQL from when the question opened, so points fall from 1,000 for an instant answer to 500 at the buzzer, with a short grace for the network. The question closes the moment the last player answers.
+
 - **A countdown in step.** Each screen turns the server's remaining time into a local deadline once per question, so the phones and the big screen count down together.
+
 - **Server calls as function calls.** The host's controls and the quiz editor call server functions straight from the page with `@rpc`.
+
 - **Data and sessions from SQL.** Migrations define the game and seed a host login with three quizzes of ten questions each. Hosts sign in with a session, and each game's controls stay with the host who started it.
 
 ### What the project server gave the agent
