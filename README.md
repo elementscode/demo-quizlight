@@ -42,7 +42,7 @@ Quizlight needed a big screen and a room full of phones that move through each q
 
 ### What the agent got from the tooling
 
-The agent ran 27 builds in 21 minutes. By the build's own timer, the median build finished in 41 milliseconds, so it checked its work after each edit and kept going. The build caught seven async callbacks in the quiz editor passed to a helper that did not await them, each with a message that showed the corrected signature. The agent read 40 manual pages as it reached each part, from `channel` and `realtime` to `html/reactivity`, then wrote 31 tests and checked its pages at phone width in a real browser.
+The agent ran 27 builds in 21 minutes, checking its work after each edit and moving straight on. The build caught seven async callbacks in the quiz editor passed to a helper that did not await them, each with a message that showed the corrected signature. The agent read 40 manual pages as it reached each part, from `channel` and `realtime` to `html/reactivity`, then wrote 31 tests and checked its pages at phone width in a real browser.
 
 Start in `app/shared/services/game.ts`.
 
