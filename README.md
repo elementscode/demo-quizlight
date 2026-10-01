@@ -27,6 +27,25 @@ Sign in at `/signin` as the demo host and press **start game** on a quiz. The
 big screen shows a six digit code. Open the home page on a phone (or another
 browser window), type the code and a nickname, and you are in.
 
+## How it's built
+
+Quizlight needed a big screen and a room full of phones that move through each question together, a fair countdown, scoring and accounts for hosts. Each of those is a part of Elements, so the agent spent its 21 minutes on the game itself.
+
+### What Elements gave the app
+
+- **One game state for every screen.** A `games` channel in `app/shared/services/game.ts` carries a `GameState` snapshot. Each join, answer and host action calls `broadcast`, and the big screen and each phone redraw from the same snapshot. The correct answer, the tally and the new scores join it only when the question closes.
+- **Players join from their phones.** `joinGame` takes the six-digit code from the big screen and a nickname, enforces unique nicknames and a 50-player cap, and returns a token that becomes the player's own `/play/:token` page.
+- **Scoring timed on the server.** `answer` records each answer with the time measured in SQL from when the question opened, so points fall from 1,000 for an instant answer to 500 at the buzzer, with a 750 millisecond grace for the network. The question closes the moment the last player answers.
+- **A countdown in step.** `app/shared/services/clock.ts` turns the server's remaining time into a local deadline once per question, so the phones and the big screen count down together.
+- **Server calls as function calls.** The host's controls call `@rpc` functions such as `startGame`, `advance` and `timeUp`, and the quiz editor calls `saveQuiz` and `saveQuestion`, straight from the template.
+- **Data and sessions from SQL.** Two migrations define the game and seed a host login with three quizzes of ten questions each. Hosts sign in with a session, and `ownGameOrThrow` keeps each game's controls with the host who started it.
+
+### What the agent got from the tooling
+
+The agent ran 27 builds in 21 minutes. By the build's own timer, the median build finished in 41 milliseconds, so it checked its work after each edit and kept going. The build caught seven async callbacks in the quiz editor passed to a helper that did not await them, each with a message that showed the corrected signature. The agent read 40 manual pages as it reached each part, from `channel` and `realtime` to `html/reactivity`, then wrote 31 tests and checked its pages at phone width in a real browser.
+
+Start in `app/shared/services/game.ts`.
+
 ## Seed data and demo account
 
 The seed creates one host with three quizzes of ten questions each: Around the
