@@ -10,9 +10,6 @@ Hosts build quizzes and run them on a big screen. Players join from their phones
 
 ## Agent specs
 
-What one run of the prompt below took, from an empty Elements project to this
-app.
-
 - **Agent:** Claude Code, Opus 5.5 Medium
 - **Time:** 21 min
 - **Cost:** $6.21 at API rates, September 2026
@@ -66,27 +63,7 @@ sign-in page shows the login and has a button that signs in as the host.
 Players do not have accounts. They join a running game with its code and a
 nickname.
 
-## The prompt
-
-```text
-Build a multiplayer trivia game named quizlight, for game nights.
-
-HOST (accounts)
-- Build quizzes: questions with four answers, one correct, and a time limit.
-- Start a game, which shows a join code on the big screen.
-- The big screen shows each question with a countdown, then the answer and
-  how many picked each option, then the leaderboard.
-
-PLAYER (no account, on a phone)
-- Join with the code and a nickname.
-- Tap an answer before time runs out. Faster correct answers score more.
-- See whether they were right and their rank after each question.
-
-Seed a host with three quizzes of ten questions each (geography, movies,
-science). Show the host login on the sign-in page.
-
-The whole game runs in real time across the big screen and every phone.
-```
+**Demo:** [Quizlight](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c)
 
 ## License
 
