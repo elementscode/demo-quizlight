@@ -1,24 +1,12 @@
-![Quizlight, a live trivia game built with Elements: the big screen after a question, with the correct answer highlighted, a count of players on each answer and 5 of 8 who got it right.](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c/poster?v=b086df8552bb)
+![A live trivia game with phone play, built by Claude Code on Elements: the big screen after a question, with the correct answer highlighted, a count of players on each answer and 5 of 8 who got it right.](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c/poster?v=b086df8552bb)
 
-# Quizlight
+# A live trivia game with phone play, built by Claude Code on Elements
 
-> A demo app built with [Elements](https://elements.dev).
+> Quizlight is a full-stack app built with Claude Code on Elements.
 
 Hosts build quizzes and run them on a big screen. Players join from their phones with a code, race the countdown, and see their points and rank after every question.
 
-**Demo:** [Quizlight](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c)
-
-## Agent specs
-
-- **Agent:** Claude Code, Opus 5.5 Medium
-- **Time:** 21 min
-- **Cost:** $6.21 at API rates, September 2026
-
-## Get started
-
-```bash
-elements create quizlight -scaffold=elementscode/demo-quizlight
-```
+[Run this app on your machine](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c). Use this demo as inspiration, or as the starting point for your own app. Your agent creates a new app with this one as the scaffold, and you prompt it to add whatever features you want.
 
 Sign in at `/signin` as the demo host and press **start game** on a quiz. The
 big screen shows a six digit code. Open the home page on a phone (or another
@@ -27,8 +15,6 @@ browser window), type the code and a nickname, and you are in.
 ## How it's built
 
 Quizlight needed a big screen and a room full of phones that move through each question together, a fair countdown, scoring and accounts for hosts. Each of those is a part of Elements, so the agent spent its 21 minutes on the game itself.
-
-### What Elements gave the app
 
 - **One game state for every screen.** A channel carries a snapshot of the game, and every join, answer and host action sends a fresh one, so the big screen and each phone redraw together. The answer and new scores join it when the question closes.
 
@@ -42,29 +28,6 @@ Quizlight needed a big screen and a room full of phones that move through each q
 
 - **Data and sessions from SQL.** Migrations define the game and seed a host login with three quizzes of ten questions each. Hosts sign in with a session, and each game's controls stay with the host who started it.
 
-### What the project server gave the agent
+## Why Elements
 
-The project server runs alongside the agent and answers as soon as a file is saved: it type-checks the templates, TypeScript and SQL, applies migrations and reruns the tests, so every question came back right away and the agent kept building.
-
-### What shipped
-
-The app type-checks with zero errors and all 31 tests pass. Every page works on desktop and phone.
-
-## Seed data and demo account
-
-The seed creates one host with three quizzes of ten questions each: Around the
-World (geography), Silver Screen (movies) and Lab Coats On (science). The
-sign-in page shows the login and has a button that signs in as the host.
-
-| Email               | Password    | Role |
-| ------------------- | ----------- | ---- |
-| host@quizlight.test | `gamenight` | host |
-
-Players do not have accounts. They join a running game with its code and a
-nickname.
-
-**Demo:** [Quizlight](https://elements.dev/demos/01a0f392-374d-7ee9-b9ac-994b29ec987c)
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+Elements is an integrated full-stack app framework and a project server. The project server checks the agent's work as it builds: it type-checks the server and browser code, analyzes the program, applies migrations and runs the tests, then reports the results to the agent. A security mistake, such as calling a server-only function from the browser, is a compile error. The agent reads the report and fixes its own mistakes before it tells you a feature is done. The same checks run on every feature you ask for next.
