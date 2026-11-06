@@ -1,6 +1,11 @@
 import "./style.css";
 import { session, redirect, ValidationError, FieldErrors } from "@elements/app";
 import { Layout } from "#app/shared/templates/layout";
+import { Button } from "@elements/ui/button";
+import { Input } from "@elements/ui/input";
+import { Field } from "@elements/ui/field";
+import { Card, CardContent } from "@elements/ui/card";
+import { Alert } from "@elements/ui/alert";
 import { joinGame, JoinForm, MAX_NICKNAME } from "#app/shared/services/game";
 
 interface JoinState {
@@ -37,8 +42,8 @@ function onSubmit(state: JoinState) {
 )>
   <Layout title="Join a game">
     <div slot="nav" class="cluster is-sm">
-      <a e:if={session.isLoggedIn()} href="/quizzes" class="button is-ghost is-sm">my quizzes</a>
-      <a e:else href="/signin" class="button is-ghost is-sm">host sign in</a>
+      <Button e:if={session.isLoggedIn()} href="/quizzes" variant="ghost" size="sm">my quizzes</Button>
+      <Button e:else href="/signin" variant="ghost" size="sm">host sign in</Button>
     </div>
 
     <div class="stack is-2xl">
@@ -48,42 +53,33 @@ function onSubmit(state: JoinState) {
         <p class="lede">Type the code from the big screen and pick a name.</p>
       </div>
 
-      <form class="home-join card stack" onsubmit={() => onSubmit(state)}>
-        <div class="card-body stack">
-          <p e:if={state.error} class="error" role="alert">{state.error}</p>
+      <form class="home-join" onsubmit={() => onSubmit(state)}>
+        <Card>
+          <CardContent class="stack">
+            <Alert e:if={state.error} variant="danger" description={state.error} />
 
-          <div class="field">
-            <label for="code">game code</label>
-            <input id="code"
-                   name="code"
-                   class={["home-code", "is-lg", state.errors.code && "is-error"]}
-                   value={state.form.code}
-                   inputmode="numeric"
-                   autocomplete="off"
-                   maxlength={7}
-                   placeholder="000000"
-                   required>
-            <p e:if={state.errors.code} class="error">{state.errors.code?.[0]}</p>
-          </div>
+            <Field label="game code" error={state.errors.code?.[0] ?? ""}>
+              <Input value={state.form.code}
+                     name="code"
+                     class="home-code"
+                     size="lg"
+                     placeholder="000000"
+                     required
+                     attrs={{ id: "code", inputmode: "numeric", autocomplete: "off", maxlength: 7 }} />
+            </Field>
 
-          <div class="field">
-            <label for="nickname">nickname</label>
-            <input id="nickname"
-                   name="nickname"
-                   class={["is-lg", state.errors.nickname && "is-error"]}
-                   value={state.form.nickname}
-                   autocomplete="nickname"
-                   autocapitalize="words"
-                   maxlength={MAX_NICKNAME}
-                   placeholder="Quizzy McQuizface"
-                   required>
-            <p e:if={state.errors.nickname} class="error">{state.errors.nickname?.[0]}</p>
-          </div>
+            <Field label="nickname" error={state.errors.nickname?.[0] ?? ""}>
+              <Input value={state.form.nickname}
+                     name="nickname"
+                     size="lg"
+                     placeholder="Quizzy McQuizface"
+                     required
+                     attrs={{ id: "nickname", autocomplete: "nickname", autocapitalize: "words", maxlength: MAX_NICKNAME }} />
+            </Field>
 
-          <button type="submit" class={["is-primary", "is-lg", "is-block", state.joining && "is-loading"]}>
-            join game
-          </button>
-        </div>
+            <Button type="submit" variant="primary" size="lg" block loading={state.joining}>join game</Button>
+          </CardContent>
+        </Card>
       </form>
 
       <p class="home-host cluster is-sm">

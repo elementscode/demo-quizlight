@@ -1,6 +1,11 @@
 import "./style.css";
 import { redirect } from "@elements/app";
 import { Layout } from "#app/shared/templates/layout";
+import { Button } from "@elements/ui/button";
+import { Input } from "@elements/ui/input";
+import { Field } from "@elements/ui/field";
+import { Card, CardContent } from "@elements/ui/card";
+import { Alert } from "@elements/ui/alert";
 import { signup, MIN_PASSWORD } from "#app/shared/services/auth";
 
 interface SignupForm {
@@ -24,46 +29,39 @@ function onSubmit(form: SignupForm) {
   private form: SignupForm = { name: "", email: "", password: "", error: "" },
 )>
   <Layout title="Create a host account">
-    <form class="signup-card card" onsubmit={() => onSubmit(form)}>
-      <div class="card-body stack">
-        <h1>Become a host</h1>
+    <form class="signup-card" onsubmit={() => onSubmit(form)}>
+      <Card>
+        <CardContent class="stack">
+          <h1>Become a host</h1>
 
-        <p e:if={form.error} class="error" role="alert">{form.error}</p>
+          <Alert e:if={form.error} variant="danger" description={form.error} />
 
-        <div class="field">
-          <label for="name">name</label>
-          <input id="name" name="name" value={form.name} autocomplete="name" required>
-        </div>
+          <Field label="name">
+            <Input value={form.name} name="name" required attrs={{ id: "name", autocomplete: "name" }} />
+          </Field>
 
-        <div class="field">
-          <label for="email">email</label>
-          <input id="email"
-                 name="email"
-                 type="email"
-                 value={form.email}
-                 autocomplete="email"
-                 autocapitalize="none"
-                 spellcheck={false}
-                 placeholder="you@example.com"
-                 required>
-        </div>
+          <Field label="email">
+            <Input value={form.email}
+                   name="email"
+                   type="email"
+                   placeholder="you@example.com"
+                   required
+                   attrs={{ id: "email", autocomplete: "email", autocapitalize: "none", spellcheck: "false" }} />
+          </Field>
 
-        <div class="field">
-          <label for="password">password</label>
-          <input id="password"
-                 name="password"
-                 type="password"
-                 value={form.password}
-                 autocomplete="new-password"
-                 minlength={MIN_PASSWORD}
-                 required>
-          <p class="hint">at least {MIN_PASSWORD} characters</p>
-        </div>
+          <Field label="password" description={`at least ${MIN_PASSWORD} characters`}>
+            <Input value={form.password}
+                   name="password"
+                   type="password"
+                   required
+                   attrs={{ id: "password", autocomplete: "new-password", minlength: MIN_PASSWORD }} />
+          </Field>
 
-        <button type="submit" class="is-primary is-block">create account</button>
+          <Button type="submit" variant="primary" block>create account</Button>
 
-        <p class="hint">Already hosting? <a href="/signin">Sign in</a></p>
-      </div>
+          <p class="hint">Already hosting? <a href="/signin">Sign in</a></p>
+        </CardContent>
+      </Card>
     </form>
   </Layout>
 </html>

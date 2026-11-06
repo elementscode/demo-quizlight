@@ -1,6 +1,11 @@
 import "./style.css";
 import { redirect } from "@elements/app";
 import { Layout } from "#app/shared/templates/layout";
+import { Button } from "@elements/ui/button";
+import { Input } from "@elements/ui/input";
+import { Field } from "@elements/ui/field";
+import { Card, CardContent } from "@elements/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "@elements/ui/alert";
 import { signin, DEMO_HOST } from "#app/shared/services/auth";
 
 interface SigninForm {
@@ -30,44 +35,40 @@ function onUseDemo(form: SigninForm) {
 )>
   <Layout title="Host sign in">
     <div class="stack is-xl">
-      <form class="signin-card card" onsubmit={() => onSubmit(form)}>
-        <div class="card-body stack">
-          <h1>Host sign in</h1>
+      <form class="signin-card" onsubmit={() => onSubmit(form)}>
+        <Card>
+          <CardContent class="stack">
+            <h1>Host sign in</h1>
 
-          <p e:if={form.error} class="error" role="alert">{form.error}</p>
+            <Alert e:if={form.error} variant="danger" description={form.error} />
 
-          <div class="field">
-            <label for="email">email</label>
-            <input id="email"
-                   name="email"
-                   type="email"
-                   value={form.email}
-                   autocomplete="email"
-                   autocapitalize="none"
-                   spellcheck={false}
-                   placeholder="you@example.com"
-                   required>
-          </div>
+            <Field label="email">
+              <Input value={form.email}
+                     name="email"
+                     type="email"
+                     placeholder="you@example.com"
+                     required
+                     attrs={{ id: "email", autocomplete: "email", autocapitalize: "none", spellcheck: "false" }} />
+            </Field>
 
-          <div class="field">
-            <label for="password">password</label>
-            <input id="password"
-                   name="password"
-                   type="password"
-                   value={form.password}
-                   autocomplete="current-password"
-                   required>
-          </div>
+            <Field label="password">
+              <Input value={form.password}
+                     name="password"
+                     type="password"
+                     required
+                     attrs={{ id: "password", autocomplete: "current-password" }} />
+            </Field>
 
-          <button type="submit" class="is-primary is-block">sign in</button>
+            <Button type="submit" variant="primary" block>sign in</Button>
 
-          <p class="hint">New host? <a href="/signup">Create an account</a></p>
-        </div>
+            <p class="hint">New host? <a href="/signup">Create an account</a></p>
+          </CardContent>
+        </Card>
       </form>
 
-      <aside class="signin-demo callout is-accent">
-        <div class="stack is-sm">
-          <p class="callout-title">Demo host</p>
+      <Alert variant="accent" role="none" class="signin-demo">
+        <AlertTitle>Demo host</AlertTitle>
+        <AlertDescription class="stack is-sm">
           <p>Three quizzes are ready to play: geography, movies and science.</p>
           <dl>
             <dt>email</dt>
@@ -76,10 +77,10 @@ function onUseDemo(form: SigninForm) {
             <dd>{DEMO_HOST.password}</dd>
           </dl>
           <div>
-            <button type="button" class="is-sm" onclick={() => onUseDemo(form)}>sign in as the demo host</button>
+            <Button size="sm" onclick={() => onUseDemo(form)}>sign in as the demo host</Button>
           </div>
-        </div>
-      </aside>
+        </AlertDescription>
+      </Alert>
     </div>
   </Layout>
 </html>
