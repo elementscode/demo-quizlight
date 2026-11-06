@@ -3,6 +3,10 @@ import { session, redirect } from "@elements/app";
 import { Layout } from "#app/shared/templates/layout";
 import { QuizSummary, createQuiz } from "#app/shared/services/quizzes";
 import { startGame } from "#app/shared/services/game";
+import { Button } from "@elements/ui/button";
+import { Card, CardContent } from "@elements/ui/card";
+import { Alert } from "@elements/ui/alert";
+import { Empty } from "@elements/ui/empty";
 
 export interface LiveGame {
   id: string;
@@ -43,7 +47,7 @@ function onCreate(busy: Busy) {
   <Layout title="Your quizzes">
     <div slot="nav" class="cluster is-sm">
       <span class="text-sm">{session.get("userName")}</span>
-      <a class="button is-ghost is-sm" href="/signout">sign out</a>
+      <Button href="/signout" variant="ghost" size="sm">sign out</Button>
     </div>
 
     <div class="stack is-xl">
@@ -52,39 +56,42 @@ function onCreate(busy: Busy) {
           <p class="eyebrow">host</p>
           <h1>Your quizzes</h1>
         </div>
-        <button class="is-primary" onclick={() => onCreate(busy)}>new quiz</button>
+        <Button variant="primary" onclick={() => onCreate(busy)}>new quiz</Button>
       </div>
 
-      <div e:for={game of live} class="callout is-accent">
+      <Alert e:for={game of live} variant="accent" role="none">
         <div class="quizzes-live row">
           <span><strong>{game.title}</strong> is still running, code <span class="quizzes-code">{game.code}</span></span>
-          <a class="button is-sm" href={`/host/${game.id}`}>back to the big screen</a>
+          <Button href={`/host/${game.id}`} size="sm">back to the big screen</Button>
         </div>
-      </div>
+      </Alert>
 
-      <p e:if={busy.error} class="error" role="alert">{busy.error}</p>
+      <Alert e:if={busy.error} variant="danger" description={busy.error} />
 
-      <ul class="quizzes-list">
-        <li e:for={quiz of quizzes} class="quizzes-item card">
-          <div class="card-body">
-            <div class="stack is-xs">
-              <h2>{quiz.title}</h2>
-              <p e:if={quiz.blurb} class="quizzes-meta">{quiz.blurb}</p>
-              <p class="quizzes-meta">{quiz.questionCount} {quiz.questionCount === 1 ? "question" : "questions"}</p>
-            </div>
-            <div class="quizzes-actions cluster is-sm">
-              <a class="button is-ghost" href={`/quizzes/${quiz.id}`}>edit</a>
-              <button class={["is-primary", busy.id === quiz.id && "is-loading"]}
-                      disabled={quiz.questionCount === 0}
-                      onclick={() => onStart(busy, quiz)}>
-                start game
-              </button>
-            </div>
-          </div>
+      <ul e:if={quizzes.length > 0} class="quizzes-list">
+        <li e:for={quiz of quizzes}>
+          <Card class="quizzes-item">
+            <CardContent>
+              <div class="stack is-xs">
+                <h2>{quiz.title}</h2>
+                <p e:if={quiz.blurb} class="quizzes-meta">{quiz.blurb}</p>
+                <p class="quizzes-meta">{quiz.questionCount} {quiz.questionCount === 1 ? "question" : "questions"}</p>
+              </div>
+              <div class="quizzes-actions cluster is-sm">
+                <Button href={`/quizzes/${quiz.id}`} variant="ghost">edit</Button>
+                <Button variant="primary"
+                        loading={busy.id === quiz.id}
+                        disabled={quiz.questionCount === 0}
+                        onclick={() => onStart(busy, quiz)}>
+                  start game
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </li>
       </ul>
 
-      <p e:if={quizzes.length === 0} class="lede">No quizzes yet. Make one and it will show up here.</p>
+      <Empty e:else variant="outline" title="No quizzes yet" description="Make one and it will show up here." />
     </div>
   </Layout>
 </html>
