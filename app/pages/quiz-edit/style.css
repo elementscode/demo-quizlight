@@ -14,8 +14,6 @@
 .edit-title {
   font-size: var(--text-2xl);
   font-weight: var(--weight-semibold);
-  height: auto;
-  padding-block: var(--space-2);
 }
 
 .edit-questions {
@@ -28,21 +26,14 @@
 
 .edit-question-head {
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .edit-number {
   font-weight: var(--weight-semibold);
   color: var(--ink-soft);
   white-space: nowrap;
-}
-
-/* Long prompts wrap and grow instead of scrolling out of a one line input. */
-.edit-prompt {
-  field-sizing: content;
-  min-height: var(--input-height-lg);
-  padding-inline: var(--space-4);
-  font-size: var(--text-md);
-  resize: none;
 }
 
 .edit-answers {
@@ -72,9 +63,11 @@
   color: var(--answer);
 }
 
-.edit-answer input {
+.edit-answer .input {
   border-color: transparent;
   background: transparent;
+  box-shadow: none;
+  padding-inline: var(--space-2);
 }
 
 .edit-mark {
@@ -87,8 +80,8 @@
   color: var(--ink-soft);
 }
 
-.edit-time input {
-  width: 5rem;
+.edit-time .number-input {
+  width: 5.5rem;
 }
 
 .edit-foot {

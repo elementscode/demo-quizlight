@@ -2,6 +2,13 @@ import "./style.css";
 import { redirect } from "@elements/app";
 import { Layout } from "#app/shared/templates/layout";
 import { AnswerShape } from "#app/shared/templates/answer-shape";
+import { Button } from "@elements/ui/button";
+import { Input } from "@elements/ui/input";
+import { NumberInput } from "@elements/ui/number-input";
+import { Textarea } from "@elements/ui/textarea";
+import { Card, CardContent } from "@elements/ui/card";
+import { Alert } from "@elements/ui/alert";
+import { AlertDialog, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@elements/ui/alert-dialog";
 import {
   Quiz,
   Question,
@@ -82,10 +89,8 @@ function onDelete(status: Status, questions: Question[], question: Question) {
 }
 
 function onDeleteQuiz(quiz: Quiz) {
-  if (confirm(`Delete "${quiz.title}" and all of its questions?`)) {
-    deleteQuiz(quiz.id);
-    redirect("/quizzes");
-  }
+  deleteQuiz(quiz.id);
+  redirect("/quizzes");
 }
 
 function onStart(status: Status, quiz: Quiz) {
@@ -103,7 +108,7 @@ function onStart(status: Status, quiz: Quiz) {
 )>
   <Layout title={quiz.title}>
     <div slot="nav" class="cluster is-sm">
-      <a href="/quizzes" class="button is-ghost is-sm">my quizzes</a>
+      <Button href="/quizzes" variant="ghost" size="sm">my quizzes</Button>
     </div>
 
     <div class="stack is-xl">
@@ -111,73 +116,81 @@ function onStart(status: Status, quiz: Quiz) {
         <a href="/quizzes" class="link-muted">← all quizzes</a>
         <div class="cluster is-sm">
           <span class="edit-status" aria-live="polite">{status.text}</span>
-          <button class="is-primary" disabled={questions.length === 0} onclick={() => onStart(status, quiz)}>start game</button>
+          <Button variant="primary" disabled={questions.length === 0} onclick={() => onStart(status, quiz)}>start game</Button>
         </div>
       </div>
 
-      <p e:if={status.error} class="error" role="alert">{status.error}</p>
+      <Alert e:if={status.error} variant="danger" description={status.error} />
 
       <div class="stack is-sm">
-        <label class="sr-only" for="quiz-title">quiz title</label>
-        <input id="quiz-title"
+        <Input value={quiz.title}
                class="edit-title"
-               value={quiz.title}
+               size="lg"
                placeholder="Quiz title"
-               onchange={() => onQuizChange(status, quiz)}>
-        <label class="sr-only" for="quiz-blurb">description</label>
-        <input id="quiz-blurb"
-               value={quiz.blurb}
+               attrs={{ "aria-label": "quiz title" }}
+               onchange={() => onQuizChange(status, quiz)} />
+        <Input value={quiz.blurb}
                placeholder="A line about this quiz (optional)"
-               onchange={() => onQuizChange(status, quiz)}>
+               attrs={{ "aria-label": "description" }}
+               onchange={() => onQuizChange(status, quiz)} />
       </div>
 
       <ol class="edit-questions">
-        <li e:for={[n, question] of questions.entries()} e:key={([n, question]) => question.id} class="card">
-          <div class="card-body stack">
-            <div class="edit-question-head row">
-              <span class="edit-number">Question {n + 1}</span>
-              <div class="cluster is-sm">
-                <label class="edit-time row">
-                  <input type="number"
-                         class="is-sm"
-                         min={MIN_TIME}
-                         max={MAX_TIME}
-                         step={5}
-                         value={question.timeLimit}
-                         onchange={() => onQuestionChange(status, question)}>
-                  seconds
-                </label>
-                <button class="is-ghost is-sm" onclick={() => onDelete(status, questions, question)}>delete</button>
+        <li e:for={[n, question] of questions.entries()} e:key={([n, question]) => question.id}>
+          <Card>
+            <CardContent class="stack">
+              <div class="edit-question-head row">
+                <span class="edit-number">Question {n + 1}</span>
+                <div class="cluster is-sm">
+                  <label class="edit-time row">
+                    <NumberInput value={question.timeLimit}
+                                 size="sm"
+                                 buttons="end"
+                                 min={MIN_TIME}
+                                 max={MAX_TIME}
+                                 step={5}
+                                 attrs={{ "aria-label": `question ${n + 1} time limit in seconds` }}
+                                 onValueCommit={() => onQuestionChange(status, question)} />
+                    seconds
+                  </label>
+                  <Button variant="ghost" size="sm" onclick={() => onDelete(status, questions, question)}>delete</Button>
+                </div>
               </div>
-            </div>
 
-            <textarea value={question.prompt}
-                      class="edit-prompt"
-                      rows={1}
-                      placeholder="Ask a question"
-                      aria-label={`question ${n + 1}`}
-                      onchange={() => onQuestionChange(status, question)}/>
+              <Textarea value={question.prompt}
+                        rows={1}
+                        resize="none"
+                        placeholder="Ask a question"
+                        attrs={{ "aria-label": `question ${n + 1}` }}
+                        onchange={() => onQuestionChange(status, question)} />
 
-            <div class="edit-answers">
-              <div e:for={[i, key] of ANSWER_KEYS.entries()}
-                   e:key={([i]) => i}
-                   class={["edit-answer", `is-answer-${i}`, question.correct === i && "is-correct"]}>
-                <AnswerShape index={i} size={18} />
-                <input value={question[key]}
-                       placeholder={`Answer ${i + 1}`}
-                       aria-label={`answer ${i + 1}`}
-                       onchange={() => onQuestionChange(status, question)}>
-                <button e:if={question.correct === i} class="edit-mark is-sm is-primary" aria-pressed="true">✓ correct</button>
-                <button e:else class="edit-mark is-sm is-ghost" onclick={() => onMarkCorrect(status, question, i)}>mark correct</button>
+              <div class="edit-answers">
+                <div e:for={[i, key] of ANSWER_KEYS.entries()}
+                     e:key={([i]) => i}
+                     class={["edit-answer", `is-answer-${i}`, question.correct === i && "is-correct"]}>
+                  <AnswerShape index={i} size={18} />
+                  <Input value={question[key]}
+                         placeholder={`Answer ${i + 1}`}
+                         attrs={{ "aria-label": `answer ${i + 1}` }}
+                         onchange={() => onQuestionChange(status, question)} />
+                  <Button e:if={question.correct === i} class="edit-mark" size="sm" variant="primary" attrs={{ "aria-pressed": "true" }}>✓ correct</Button>
+                  <Button e:else class="edit-mark" size="sm" variant="ghost" onclick={() => onMarkCorrect(status, question, i)}>mark correct</Button>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </li>
       </ol>
 
       <div class="edit-foot row">
-        <button onclick={() => onAdd(status, quiz, questions)}>+ add question</button>
-        <button class="is-danger is-sm" onclick={() => onDeleteQuiz(quiz)}>delete quiz</button>
+        <Button onclick={() => onAdd(status, quiz, questions)}>+ add question</Button>
+        <AlertDialog title={`Delete "${quiz.title}"?`} description="This deletes the quiz and all of its questions.">
+          <Button slot="trigger" variant="danger" size="sm">delete quiz</Button>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="danger" onclick={() => onDeleteQuiz(quiz)}>Delete quiz</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialog>
       </div>
     </div>
   </Layout>
