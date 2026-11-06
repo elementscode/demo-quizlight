@@ -161,9 +161,9 @@ function podium(players: Standing[]): { player: Standing; place: number }[] {
       </main>
 
       <footer class="stage-controls row">
-        <span>
+        <div>
           <Alert e:if={control.error} variant="danger" description={control.error} />
-        </span>
+        </div>
         <div class="cluster is-sm">
           <Button e:if={live.state.phase === "lobby" || live.state.phase === "finished"} href="/quizzes" variant="ghost" size="lg">
             {live.state.phase === "finished" ? "back to quizzes" : "cancel"}
