@@ -15,8 +15,6 @@
     --accent-deep: var(--brand-700);
     --accent-soft: var(--brand-50);
     --accent-edge: var(--brand-200);
-    --link-c: 0.123;
-    --link-h: 292;
 
     /* The four answer colors stay saturated in both themes: players find
        their answer by color and shape across a room, not by reading. */
