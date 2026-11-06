@@ -3,6 +3,8 @@ import type { Listener } from "@elements/app";
 import favicon from "#app/shared/assets/favicons/favicon.svg";
 import { Logo } from "#app/shared/templates/logo";
 import { AnswerShape } from "#app/shared/templates/answer-shape";
+import { Button } from "@elements/ui/button";
+import { Alert } from "@elements/ui/alert";
 import { GameState, HostAction, Standing, advance, timeUp, ordinal } from "#app/shared/services/game";
 import { Clock, Live, newClock, syncClock, applyState, secondsLeft, fractionLeft, msLeft } from "#app/shared/services/clock";
 
@@ -160,33 +162,34 @@ function podium(players: Standing[]): { player: Standing; place: number }[] {
 
       <footer class="stage-controls row">
         <span>
-          <span e:if={control.error} class="error" role="alert">{control.error}</span>
+          <Alert e:if={control.error} variant="danger" description={control.error} />
         </span>
         <div class="cluster is-sm">
-          <a e:if={live.state.phase === "lobby" || live.state.phase === "finished"} class="button is-ghost" href="/quizzes">
+          <Button e:if={live.state.phase === "lobby" || live.state.phase === "finished"} href="/quizzes" variant="ghost" size="lg">
             {live.state.phase === "finished" ? "back to quizzes" : "cancel"}
-          </a>
-          <button e:if={live.state.phase === "lobby"}
-                  class="is-primary is-lg"
+          </Button>
+          <Button e:if={live.state.phase === "lobby"}
+                  variant="primary"
+                  size="lg"
                   disabled={live.state.players.length === 0 || control.busy}
                   onclick={() => onAdvance(live, control, "start")}>
             start game
-          </button>
-          <button e:if={live.state.phase === "question"} class="is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "close")}>
+          </Button>
+          <Button e:if={live.state.phase === "question"} size="lg" disabled={control.busy} onclick={() => onAdvance(live, control, "close")}>
             reveal answer now
-          </button>
-          <button e:if={live.state.phase === "reveal"} class="is-primary is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "leaderboard")}>
+          </Button>
+          <Button e:if={live.state.phase === "reveal"} variant="primary" size="lg" disabled={control.busy} onclick={() => onAdvance(live, control, "leaderboard")}>
             leaderboard
-          </button>
-          <button e:if={live.state.phase === "leaderboard" && !isLast(live.state)} class="is-primary is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "next")}>
+          </Button>
+          <Button e:if={live.state.phase === "leaderboard" && !isLast(live.state)} variant="primary" size="lg" disabled={control.busy} onclick={() => onAdvance(live, control, "next")}>
             next question
-          </button>
-          <button e:if={live.state.phase === "leaderboard" && isLast(live.state)} class="is-primary is-lg" disabled={control.busy} onclick={() => onAdvance(live, control, "next")}>
+          </Button>
+          <Button e:if={live.state.phase === "leaderboard" && isLast(live.state)} variant="primary" size="lg" disabled={control.busy} onclick={() => onAdvance(live, control, "next")}>
             final results
-          </button>
-          <button e:if={live.state.phase !== "lobby" && live.state.phase !== "finished"} class="is-ghost" disabled={control.busy} onclick={() => onAdvance(live, control, "end")}>
+          </Button>
+          <Button e:if={live.state.phase !== "lobby" && live.state.phase !== "finished"} variant="ghost" size="lg" disabled={control.busy} onclick={() => onAdvance(live, control, "end")}>
             end game
-          </button>
+          </Button>
         </div>
       </footer>
     </div>

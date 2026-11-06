@@ -162,17 +162,17 @@
 
 .verdict.is-right {
   background: var(--success);
-  color: #ffffff;
+  color: var(--answer-ink);
 }
 
 .verdict.is-wrong {
   background: var(--danger);
-  color: #ffffff;
+  color: var(--answer-ink);
 }
 
 .verdict.is-late {
   background: var(--answer-2);
-  color: #ffffff;
+  color: var(--answer-ink);
 }
 
 @keyframes verdict-pop {

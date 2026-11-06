@@ -2,6 +2,8 @@ import "./style.css";
 import type { Listener } from "@elements/app";
 import favicon from "#app/shared/assets/favicons/favicon.svg";
 import { AnswerShape } from "#app/shared/templates/answer-shape";
+import { Button } from "@elements/ui/button";
+import { Alert } from "@elements/ui/alert";
 import { GameState, Standing, answer, rankOf, ordinal } from "#app/shared/services/game";
 import { Clock, Live, newClock, syncClock, applyState, secondsLeft, fractionLeft } from "#app/shared/services/clock";
 
@@ -107,7 +109,7 @@ function standingLine(state: GameState, nickname: string): string {
         </div>
         <h1>Locked in</h1>
         <p class="phone-meta">{live.state.answeredCount} of {live.state.players.length} answered. Eyes on the big screen.</p>
-        <p e:if={mine.error} class="error" role="alert">{mine.error}</p>
+        <Alert e:if={mine.error} variant="danger" description={mine.error} />
       </main>
 
       <main e:elseif={live.state.phase === "reveal" || live.state.phase === "leaderboard"} class="phone-body">
@@ -138,7 +140,7 @@ function standingLine(state: GameState, nickname: string): string {
         <h1 e:else>Thanks for playing</h1>
         <p class="phone-meta">{(me(live.state, nickname)?.score ?? 0).toLocaleString()} points · {live.state.players.length} players</p>
         <div>
-          <a class="button is-primary is-lg" href="/">join another game</a>
+          <Button href="/" variant="primary" size="lg">join another game</Button>
         </div>
       </main>
     </div>

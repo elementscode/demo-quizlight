@@ -342,11 +342,6 @@
 .podium-step.is-second .podium-block { height: 11rem; }
 .podium-step.is-third .podium-block { height: 8rem; }
 
-.stage-controls .button,
-.stage-controls button {
-  font-size: var(--text-lg);
-}
-
 @media (max-width: 48rem) {
   .tiles {
     grid-template-columns: 1fr;
