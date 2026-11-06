@@ -1,4 +1,5 @@
-@import "@elements/style";
+@import "@elements/ui";
+@import "@elements/ui/themes/playful";
 @import "./vars.css";
 
 .answer-shape {
